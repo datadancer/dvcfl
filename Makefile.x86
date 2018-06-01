@@ -1,0 +1,22 @@
+#KERNELDIR should be set as your kernel build directory.
+KERNELDIR := /usr/src/linux-headers-`uname -r`
+PWD := $(shell pwd)
+
+#CROSS_COMPILE := aarch64-linux-android-
+#CROSS_COMPILE := arm-linux-gnueabi-
+ARCH := x86 
+CC=gcc
+LD=ld
+
+obj-m := dvcfl.o
+
+all: getdvcfl modules
+
+getdvcfl: getdvcfl.c
+	$(CC) -static getdvcfl.c -o getdvcfl
+
+modules:
+	$(MAKE) -C $(KERNELDIR) ARCH=$(ARCH)  M=$(PWD) modules 
+ 
+clean:
+	rm -f *.o *.ko *.mod.c *.markers *.order *.symvers getdvcfl
