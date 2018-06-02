@@ -46,7 +46,7 @@ int handle_dir(int fd, char *s_dir){
         //if(strncmp(fname, "/dev/tty", 8) == 0) continue;
     	fdp.fd = open(fname, O_RDONLY);
     	if(fdp.fd < 0) { printf("Open %s error.\n", fname); continue;}
-    	if (ioctl(fd, 0, &fdp) == -1) {perror("ioctl");}
+    	if (ioctl(fd, 0x40086602, &fdp) == -1) {perror("ioctl");}
     	else {
 		    if(fdp.ptr != NULL) {
 		        strcpy(devs[dev_cnt].fname, fname); devs[dev_cnt].ptr = (unsigned long)fdp.ptr;
@@ -72,9 +72,7 @@ int main(int argc, char** argv)
         return -1;  
     }  
     handle_dir(fd, "/dev");
-    //handle_dir(fd, "/sys/dev");
     unsigned long addr; char tc; char func_name[256]; int i;
-    //Find all addr and function name in kallsyms
     FILE * kallsyms = fopen("kallsyms", "r");
     FILE * syms_devs = fopen("syms_devs", "w");
     if(kallsyms == NULL || syms_devs==NULL ) perror("Open kallsyms Error");
