@@ -75,6 +75,12 @@ int main(int argc, char** argv)
     unsigned long addr; char tc; char func_name[256]; int i;
     FILE * kallsyms = fopen("kallsyms", "r");
     FILE * syms_devs = fopen("syms_devs", "w");
+    FILE * device_address = fopen("device_address", "w");
+
+	for(i=0;i<dev_cnt;i++) {
+        fprintf(device_address, "%s %lx\n", devs[i].fname, devs[i].ptr); 
+    }
+
     if(kallsyms == NULL || syms_devs==NULL ) perror("Open kallsyms Error");
     else{
 	while(fscanf(kallsyms, "%lx %c %s\n", &addr, &tc, func_name) == 3){
@@ -89,6 +95,7 @@ int main(int argc, char** argv)
     }
     fclose(kallsyms);
     fclose(syms_devs);
+    fclose(device_address);
     
     close(fd);  
     return 0;  
