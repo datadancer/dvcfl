@@ -137,15 +137,15 @@ int main(int argc, char** argv)
     handle_dir(fd, "/dev");
     unsigned long addr; char tc; char func_name[256]; int i;
     FILE * syms_devs = fopen("syms_devs", "w");
-    FILE * device_address = fopen("device_address", "w");
+    FILE * kallioctls = fopen("kallioctls", "w");
 
 	for(i=0;i<dev_cnt;i++) {
         cur = find_ksym_by_addr(head, devs[i].ptr);
         if(cur != NULL){
             if(cur->module == NULL)
-            fprintf(device_address, "%s %s\n", devs[i].fname, cur->name); 
+            fprintf(kallioctls, "%s %s\n", devs[i].fname, cur->name); 
             else
-            fprintf(device_address, "%s %s %s\n", devs[i].fname, cur->name, cur->module); 
+            fprintf(kallioctls, "%s %s %s\n", devs[i].fname, cur->name, cur->module); 
         }
     }
 
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
     cur = head;
     while(cur!=NULL){free(cur->name); free(cur->module); cur=cur->next;}
     fclose(syms_devs);
-    fclose(device_address);
+    fclose(kallioctls);
     close(fd);  
     return 0;  
 }  
