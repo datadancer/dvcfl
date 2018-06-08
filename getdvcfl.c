@@ -143,30 +143,35 @@ int main(int argc, char** argv)
     unsigned long addr; char tc; char func_name[256]; int i;
     FILE * syms_devs = fopen("syms_devs", "w");
     FILE * kallioctls = fopen("kallioctls", "w");
-
+    
+    //For each device, output it's ioctl.
 	for(i=0;i<dev_cnt;i++) {
         cur = find_ksym_by_addr(head, devs[i].ptr);
         if(cur != NULL){
             if(cur->module == NULL)
-            fprintf(kallioctls, "%s %s\n", devs[i].fname, cur->name); 
+                fprintf(kallioctls, "%s %s\n", devs[i].fname, cur->name); 
             else
-            fprintf(kallioctls, "%s %s %s\n", devs[i].fname, cur->name, cur->module); 
+                fprintf(kallioctls, "%s %s %s\n", devs[i].fname, cur->name, cur->module); 
         }
     }
 
-    if(syms_devs==NULL ) perror("Open kallsyms Error");
-    else{
-    while(cur!=NULL){
-	    for(i=0;i<dev_cnt;i++) {
-            if(cur->addr == devs[i].ptr) { 
-                fprintf(stdout, "%s %s\n", devs[i].fname, cur->name); 
-                fprintf(syms_devs, "%s %s\n", devs[i].fname, cur->name); 
-                break;
+    if(syms_devs != NULL ) {
+        cur = head;
+        //For each ioctl, find one device.
+        while(cur!=NULL){ 
+	        for(i=0;i<dev_cnt;i++) {
+                if(cur->addr == devs[i].ptr) { 
+                    fprintf(stdout, "%s %s\n", devs[i].fname, cur->name); 
+                    fprintf(syms_devs, "%s %s\n", devs[i].fname, cur->name); 
+                    break;
+                }
             }
-        }
-        cur=cur->next;
-	}
+            cur=cur->next;
+	    }
+    } else {
+        perror("Open kallsyms Error");
     }
+
     cur = head;
     while(cur!=NULL){free(cur->name); free(cur->module); cur=cur->next;}
     fclose(syms_devs);
