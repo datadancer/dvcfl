@@ -49,20 +49,25 @@ int handle_dir(int fd, char *s_dir){
 	    fname[0] = '\0';
 	    strcat(fname, s_dir); strcat(fname, "/");
 	    strcat(fname, dir->d_name);
-        printf("Try to open %s\n", fname);
-    	fdp.fd = open(fname, O_RDONLY);
-    	if(fdp.fd < 0) { printf("Open %s error.\n", fname); continue;}
-    	if (ioctl(fd, 0x40086602, &fdp) == -1) {perror("ioctl");}
-    	else {
-		    if(fdp.ptr != NULL) {
-		        strcpy(devs[dev_cnt].fname, fname); devs[dev_cnt].ptr = (unsigned long)fdp.ptr;
-		        printf("%3d: %lx %s\n",dev_cnt, devs[dev_cnt].ptr, devs[dev_cnt].fname);
-		        dev_cnt++;
-		    }else{
-		        printf("no unlocked_ioctl found, fdp.ptr=%p.\n", fdp.ptr); 
-            }
+	    //Skip watchdog and /char/ device.
+	    if(strstr(fname, "watchdog") != NULL || strstr(fname, "/char/") != NULL){
+		printf("watchdog or /char/ device, skip it.\n");
+		continue;
 	    }
-    	close(fdp.fd);
+            printf("Try to open %s\n", fname);
+    	    fdp.fd = open(fname, O_RDONLY);
+    	    if(fdp.fd < 0) { printf("Open %s error.\n", fname); continue;}
+    	    if (ioctl(fd, 0x40086602, &fdp) == -1) {perror("ioctl");}
+    	    else {
+	    	    if(fdp.ptr != NULL) {
+	    	        strcpy(devs[dev_cnt].fname, fname); devs[dev_cnt].ptr = (unsigned long)fdp.ptr;
+	    	        printf("%3d: %lx %s\n",dev_cnt, devs[dev_cnt].ptr, devs[dev_cnt].fname);
+	    	        dev_cnt++;
+	    	    }else{
+	    	        printf("no unlocked_ioctl found, fdp.ptr=%p.\n", fdp.ptr); 
+                }
+	        }
+    	    close(fdp.fd);
 	}
 	closedir(d);
     }
